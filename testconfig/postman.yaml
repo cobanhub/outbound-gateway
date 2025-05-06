@@ -1,0 +1,18 @@
+integrations:
+    name: "Postman"
+    matchPath: "/post"
+    endpoint: "https://postman-echo.com/post"
+    method: "POST"
+    requestMapping:
+        "method": "metode"
+    responseMapping:
+        "alamat": "url"
+    QueryParams:
+        "query": "query"
+    Headers:
+        "Content-Type": "Tipe-Konten"
+        "Accept" :  "Terima"
+        "Authorization": "Otorisasi"
+    codeMapping:
+        "200": "success"
+        "500": "failed"

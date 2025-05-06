@@ -5,13 +5,14 @@ import (
 	"net/http"
 
 	"github.com/cobanhub/outbound-gateway/internal/controller"
+	"github.com/cobanhub/outbound-gateway/internal/middleware"
 
 	"github.com/gorilla/mux"
 )
 
 func Start() {
 	r := mux.NewRouter()
-	r.HandleFunc("/outbound/{integration}", controller.HandleOutbound).Methods("POST")
+	r.HandleFunc("/outbound/{integration}", middleware.RecoveryMiddleware(controller.HandleOutbound())).Methods("POST")
 	r.HandleFunc("/upload-config", controller.UploadConfigHandler).Methods("POST")
 
 	srv := &http.Server{

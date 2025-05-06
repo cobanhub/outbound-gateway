@@ -16,15 +16,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type Config struct {
-	IntegrationName string `yaml:"integration_name"`
-	RequestMapping  string `yaml:"request_mapping"`
-	ResponseMapping string `yaml:"response_mapping"`
-}
-
 func HandleOutbound(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	integrationName := vars["integration"]
+	var coreRequest map[string]interface{}
 
 	cfg, err := config.GetIntegrationConfig(integrationName)
 	if err != nil {
@@ -32,16 +27,15 @@ func HandleOutbound(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var coreRequest map[string]interface{}
-	json.NewDecoder(r.Body).Decode(&coreRequest)
+	headers := r.Header
 
-	thirdPartyRequest, err := mapper.MapRequest(cfg, coreRequest)
+	thirdPartyRequest, thirdPartyHeadersReq, err := mapper.MapRequestWithHeaders(cfg, coreRequest, headers)
 	if err != nil {
 		http.Error(w, "Mapping request failed", http.StatusInternalServerError)
 		return
 	}
 
-	thirdPartyResp, err := client.Send(thirdPartyRequest, cfg)
+	thirdPartyResp, err := client.Send(thirdPartyRequest, thirdPartyHeadersReq, cfg)
 	if err != nil {
 		http.Error(w, "Failed to contact third party", http.StatusBadGateway)
 		return
@@ -74,7 +68,7 @@ func UploadConfigHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse YAML
-	var config Config
+	var config config.Integrations
 	err = yaml.Unmarshal(fileContent, &config)
 	if err != nil {
 		http.Error(w, "Invalid YAML format", http.StatusBadRequest)
@@ -82,8 +76,18 @@ func UploadConfigHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate the config
-	if config.IntegrationName == "" || config.RequestMapping == "" || config.ResponseMapping == "" {
-		http.Error(w, "Missing required fields in YAML", http.StatusBadRequest)
+	if config.Integrations.Name == "" {
+		http.Error(w, "Missing IntegrationName fields in YAML", http.StatusBadRequest)
+		return
+	}
+
+	if config.Integrations.RequestMapping == nil {
+		http.Error(w, "Missing RequestMapping fields in YAML", http.StatusBadRequest)
+		return
+	}
+
+	if config.Integrations.ResponseMapping == nil {
+		http.Error(w, "Missing ResponseMapping fields in YAML", http.StatusBadRequest)
 		return
 	}
 
@@ -100,9 +104,14 @@ func UploadConfigHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // storeConfigFile stores the YAML configuration in a file under the config folder
-func storeConfigFile(config Config) error {
+func storeConfigFile(config config.Integrations) error {
 	// Create the config directory if it doesn't exist
-	configDir := "./config"
+
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("failed to get home directory: %v", err)
+	}
+	configDir := homedir + "/config"
 	if _, err := os.Stat(configDir); os.IsNotExist(err) {
 		err := os.Mkdir(configDir, os.ModePerm)
 		if err != nil {
@@ -111,7 +120,7 @@ func storeConfigFile(config Config) error {
 	}
 
 	// Create a unique filename for each config file (using integration name)
-	configFileName := fmt.Sprintf("./config/%s.yaml", config.IntegrationName)
+	configFileName := fmt.Sprintf(homedir+"/config/%s.yaml", config.Integrations.Name)
 
 	// Serialize the config back to YAML and save it
 	configData, err := yaml.Marshal(&config)

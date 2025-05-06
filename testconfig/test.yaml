@@ -1,0 +1,18 @@
+integrations:
+    name: "ExampleIntegration"
+    matchPath: "/api/v1/integration"
+    endpoint: "https://example.com/api"
+    method: "POST"
+    requestMapping:
+        "param1": "value1"
+        "param2": "value2"
+    responseMapping:
+        "responseField1": "mappedValue1"
+        "responseField2": "mappedValue2"
+    auth:
+    username: "user123"
+    password: "securepassword"
+    codeMapping:
+        "200": "success"
+        "500": "failed"
+    adapterScript: "path/to/adapter.lua"

@@ -3,10 +3,9 @@ package client
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
-	"io/ioutil"
+	"fmt"
+	"io"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/cobanhub/outbound-gateway/internal/config"
@@ -29,20 +28,32 @@ func init() {
 	}
 	cb = gobreaker.NewCircuitBreaker(settings)
 }
-func Send(payload map[string]interface{}, integration *config.IntegrationConfig) (GatewayResponse, error) {
-	bodyBytes, _ := json.Marshal(payload)
+func Send(payload map[string]interface{}, headers map[string]string, integration *config.IntegrationConfig) (GatewayResponse, error) {
+	bodyBytes, err := json.Marshal(payload)
+
+	if err != nil {
+		return GatewayResponse{}, err
+	}
 
 	result, err := cb.Execute(func() (interface{}, error) {
 		req, err := http.NewRequest(integration.Method, integration.Endpoint, bytes.NewReader(bodyBytes))
 		if err != nil {
 			return nil, err
 		}
-		req.Header.Set("Content-Type", "application/json")
 
-		if integration != nil && integration.Auth != nil {
-			if strings.EqualFold(integration.Auth.Type, "Bearer") {
-				req.Header.Set("Authorization", "Bearer "+integration.Auth.Token)
+		if integration != nil {
+			if headers != nil {
+				for key, value := range headers {
+					req.Header.Set(key, value)
+				}
 			}
+			// if integration.QueryParams != nil {
+			// 	q := req.URL.Query()
+			// 	for key, value := range integration.QueryParams {
+			// 		q.Add(key, value)
+			// 	}
+			// 	req.URL.RawQuery = q.Encode()
+			// }
 		}
 
 		client := &http.Client{
@@ -50,27 +61,26 @@ func Send(payload map[string]interface{}, integration *config.IntegrationConfig)
 		}
 
 		var resp *http.Response
-		maxRetries := 3
-		for attempts := 0; attempts < maxRetries; attempts++ {
+		for attempts := 0; attempts < integration.RetryCount; attempts++ {
 			resp, err = client.Do(req)
 			if err == nil {
 				break
 			}
-			time.Sleep(time.Duration(attempts+1) * time.Second)
+			time.Sleep(time.Duration(integration.RetryInterval) * time.Second)
 		}
 		if err != nil {
 			return nil, err
 		}
 		defer resp.Body.Close()
 
-		respBytes, err := ioutil.ReadAll(resp.Body)
+		respBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return nil, err
 		}
 
 		var respData map[string]interface{}
 		if err := json.Unmarshal(respBytes, &respData); err != nil {
-			return nil, errors.New("Invalid 3rd party response")
+			return nil, fmt.Errorf("failed to parse response: %w", err)
 		}
 
 		return GatewayResponse{

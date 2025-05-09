@@ -1,6 +1,6 @@
 # Madakaripura
 
-A lightweight and configurable middleware service that acts as a dynamic Madakaripura between core systems and third-party partner APIs.
+A lightweight and configurable middleware service that acts as a dynamic outbound gateway between core systems and third-party partner APIs.
 
 ## 🚀 Overview
 
@@ -25,7 +25,7 @@ Features may change, and contributions or feedback are very welcome.
 
 ```text
 +-------------+          +------------------+          +-------------------+
-| Core System |   --->   | Madakaripura |   --->   | Third-Party API   |
+| Core System |   --->   | Madakaripura     |   --->   | Third-Party API   |
 +-------------+          +------------------+          +-------------------+
                             |         |
                             |         +--> Request Mapper (e.g. Goja)

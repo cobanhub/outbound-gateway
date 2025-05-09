@@ -1,10 +1,10 @@
-# Outbound Gateway
+# Madakaripura
 
-A lightweight and configurable middleware service that acts as a dynamic outbound gateway between core systems and third-party partner APIs.
+A lightweight and configurable middleware service that acts as a dynamic Madakaripura between core systems and third-party partner APIs.
 
 ## 🚀 Overview
 
-The **Outbound Gateway** decouples your internal core system from external partner APIs by handling:
+The **Madakaripura** decouples your internal core system from external partner APIs by handling:
 
 - Request transformation (core format → partner-specific)
 - Forwarding logic with configurable endpoints and headers
@@ -25,7 +25,7 @@ Features may change, and contributions or feedback are very welcome.
 
 ```text
 +-------------+          +------------------+          +-------------------+
-| Core System |   --->   | Outbound Gateway |   --->   | Third-Party API   |
+| Core System |   --->   | Madakaripura |   --->   | Third-Party API   |
 +-------------+          +------------------+          +-------------------+
                             |         |
                             |         +--> Request Mapper (e.g. Goja)

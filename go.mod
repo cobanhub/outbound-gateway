@@ -1,4 +1,4 @@
-module github.com/cobanhub/outbound-gateway
+module github.com/cobanhub/madakaripura
 
 go 1.21.13
 

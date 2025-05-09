@@ -8,15 +8,15 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o outbound-gateway ./cmd/main.go
+RUN go build -o madakaripura ./cmd/main.go
 
 # Final image
 FROM gcr.io/distroless/static:nonroot
 
 WORKDIR /
 
-COPY --from=builder /app/outbound-gateway .
+COPY --from=builder /app/madakaripura .
 
 USER nonroot:nonroot
 
-ENTRYPOINT ["./outbound-gateway"]
+ENTRYPOINT ["./madakaripura"]

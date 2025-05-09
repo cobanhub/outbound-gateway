@@ -1,38 +1,28 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 	"time"
-
-	"github.com/google/uuid"
 )
 
-func RecoveryMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		defer func() {
-			if err := recover(); err != nil {
-				log.Printf("Recovered from panic: %v", err)
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			}
-		}()
-		next.ServeHTTP(w, r)
-	})
-}
+type (
+	Middleware struct {
+		timeout time.Duration
+	}
 
-func CorrelationIDMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		correlationID := r.Header.Get("X-Correlation-ID")
-		if correlationID == "" {
-			correlationID = uuid.NewString()
-		}
+	MiddlewareOptions struct {
+		Timeout time.Duration
+	}
 
-		w.Header().Set("X-Correlation-ID", correlationID)
+	MiddlewareInterface interface {
+		RecoveryMiddleware(next http.Handler) http.Handler
+		CorrelationIDMiddleware(next http.Handler) http.Handler
+	}
+)
 
-		start := time.Now()
-		next.ServeHTTP(w, r)
-		duration := time.Since(start)
-
-		log.Printf("[%s] %s %s %v", correlationID, r.Method, r.URL.Path, duration)
-	})
+// MiddlewareOption is a function that applies a configuration option to the Middleware.
+func NewMiddleware(opts MiddlewareOptions) *Middleware {
+	return &Middleware{
+		timeout: opts.Timeout,
+	}
 }

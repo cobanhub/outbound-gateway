@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/cobanhub/outbound-gateway/internal/client"
-	"github.com/cobanhub/outbound-gateway/internal/config"
+	"github.com/cobanhub/madakaripura/internal/client"
+	"github.com/cobanhub/madakaripura/internal/config"
 )
 
 func MapRequestWithHeaders(cfg *config.IntegrationConfig, coreReq map[string]interface{}, headersReq http.Header) (req map[string]interface{}, header map[string]string, err error) {

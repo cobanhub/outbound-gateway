@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/cobanhub/madakaripura/internal/client"
-	"github.com/cobanhub/madakaripura/internal/config"
+	config "github.com/cobanhub/madakaripura/internal/integration_config"
 	"github.com/cobanhub/madakaripura/internal/services/mapper"
 )
 

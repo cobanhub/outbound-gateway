@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/cobanhub/madakaripura/internal/client"
-	"github.com/cobanhub/madakaripura/internal/config"
+	config "github.com/cobanhub/madakaripura/internal/integration_config"
 )
 
 func MapRequestWithHeaders(cfg *config.IntegrationConfig, coreReq map[string]interface{}, headersReq http.Header) (req map[string]interface{}, header map[string]string, err error) {

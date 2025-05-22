@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 
-	"github.com/cobanhub/madakaripura/internal/config"
+	config "github.com/cobanhub/madakaripura/internal/integration_config"
 	"gopkg.in/yaml.v3"
 )
 

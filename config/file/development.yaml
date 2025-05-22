@@ -1,0 +1,10 @@
+Server:
+  Port: ":8080"
+  GracefulTimeout: 3s
+  ReadTimeout: 10s
+  WriteTimeout: 10s
+
+InternalAPI:
+  BasePath: "/pod-punishment"
+  APITimeout: 10
+  EnableSwagger: true

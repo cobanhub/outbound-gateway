@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/cobanhub/outbound-gateway/internal/config"
+	config "github.com/cobanhub/madakaripura/internal/integration_config"
 
 	"github.com/sony/gobreaker"
 )

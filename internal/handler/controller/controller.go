@@ -5,14 +5,14 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/cobanhub/lib/response"
+	"github.com/cobanhub/lib/router"
 )
 
-func HandleOutbound(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	integrationName := vars["integration"]
-	var coreRequest map[string]interface{}
-
+func (a *API) HandleOutbound(ctx *router.Ctx) *response.JSONResponse {
+	integrationName := ctx.Params("integration")
+	coreRequest := make(map[string]interface{})
+	response, err := a.interactor.HandleJson(integrationName, coreRequest, ctx.Request.Header)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(coreResponse)
 	log.Println("Success outbound for integration:", integrationName)

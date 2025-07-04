@@ -1,4 +1,4 @@
-package configuration
+package repository
 
 import (
 	"fmt"
@@ -6,11 +6,11 @@ import (
 	"log"
 	"os"
 
-	config "github.com/cobanhub/madakaripura/internal/integration_config"
+	"github.com/cobanhub/madakaripura/internal/repository/model"
 	"gopkg.in/yaml.v3"
 )
 
-func localConfigFilePath(config config.Integrations) error {
+func Save(config model.Integrations) error {
 	homedir, err := os.UserHomeDir()
 	if err != nil {
 		return fmt.Errorf("failed to get home directory: %v", err)

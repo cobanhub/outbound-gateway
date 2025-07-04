@@ -7,15 +7,7 @@ type (
 	// and how to access them.
 	// For example, if you want to store the configuration in a database,
 	// you might want to add a field for the database connection string.
-	Configuration struct {
-		StoreConfigFilePath string
-		Type                StorageType
-	}
-
-	StorageConfig struct {
-	}
-
-	StorageType int
+	
 )
 
 const (

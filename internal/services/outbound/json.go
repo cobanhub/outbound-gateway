@@ -2,16 +2,18 @@ package outbound
 
 import (
 	"errors"
-	"net/http"
 
+	"github.com/cobanhub/lib/router"
 	"github.com/cobanhub/madakaripura/internal/client"
-	config "github.com/cobanhub/madakaripura/internal/integration_config"
+	config "github.com/cobanhub/madakaripura/internal/services/configuration"
 	"github.com/cobanhub/madakaripura/internal/services/mapper"
 )
 
-func (o *Outbound) HandleJson(integrationName string, coreRequest map[string]interface{}, reqHeader http.Header) (map[string]interface{}, error) {
-	// Validate the integration name
+func (o *Outbound) HandleJson(integrationName string, ctx *router.Ctx) (map[string]interface{}, error) {
+	reqHeader := ctx.GetReqHeaders()
+	coreRequest := make(map[string]interface{})
 
+	// Validate the integration name
 	cfg, err := config.GetIntegrationConfig(integrationName)
 	if err != nil {
 		// http.Error(w, "Integration not found", http.StatusBadRequest)

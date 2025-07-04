@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"github.com/cobanhub/madakaripura/internal/client"
-	config "github.com/cobanhub/madakaripura/internal/integration_config"
+	"github.com/cobanhub/madakaripura/internal/repository/model"
 )
 
-func MapRequestWithHeaders(cfg *config.IntegrationConfig, coreReq map[string]interface{}, headersReq http.Header) (req map[string]interface{}, header map[string]string, err error) {
+func MapRequestWithHeaders(cfg *model.IntegrationConfig, coreReq map[string]interface{}, headersReq http.Header) (req map[string]interface{}, header map[string]string, err error) {
 	req = make(map[string]interface{})
 	header = make(map[string]string)
 
@@ -34,7 +34,7 @@ func MapRequestWithHeaders(cfg *config.IntegrationConfig, coreReq map[string]int
 	return req, header, nil
 }
 
-func MapRequest(cfg *config.IntegrationConfig, coreReq map[string]interface{}) (map[string]interface{}, error) {
+func MapRequest(cfg *model.IntegrationConfig, coreReq map[string]interface{}) (map[string]interface{}, error) {
 	mapped := make(map[string]interface{})
 	for targetField, sourceField := range cfg.RequestMapping {
 		value, found := getNestedField(coreReq, sourceField)
@@ -46,7 +46,7 @@ func MapRequest(cfg *config.IntegrationConfig, coreReq map[string]interface{}) (
 	return mapped, nil
 }
 
-func MapResponse(integration *config.IntegrationConfig, thirdPartyResp client.GatewayResponse) (map[string]interface{}, error) {
+func MapResponse(integration *model.IntegrationConfig, thirdPartyResp client.GatewayResponse) (map[string]interface{}, error) {
 	mapped := make(map[string]interface{})
 	for targetField, sourceField := range integration.ResponseMapping {
 		value, found := getNestedField(thirdPartyResp.Body, sourceField)

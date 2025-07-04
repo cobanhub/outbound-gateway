@@ -2,10 +2,13 @@ package configuration
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"mime/multipart"
+	"os"
 
-	config "github.com/cobanhub/madakaripura/internal/integration_config"
+	"github.com/cobanhub/madakaripura/internal/repository/model"
+	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 )
 
@@ -18,7 +21,7 @@ func (c *Configuration) UploadConfigHandler(file multipart.File) error {
 	}
 
 	// Parse YAML
-	var config config.Integrations
+	var config model.Integrations
 	err = yaml.Unmarshal(fileContent, &config)
 	if err != nil {
 		// http.Error(w, "Invalid YAML format", http.StatusBadRequest)
@@ -52,7 +55,7 @@ func (c *Configuration) UploadConfigHandler(file multipart.File) error {
 }
 
 // storeConfigFile stores the YAML configuration in a file under the config folder
-func (c *Configuration) storeConfigFile(config config.Integrations) error {
+func (c *Configuration) storeConfigFile(config Integrations) error {
 	// Create the config directory if it doesn't exist
 	var err error
 	switch c.Type {
@@ -68,4 +71,29 @@ func (c *Configuration) storeConfigFile(config config.Integrations) error {
 		err = errors.New("Invalid configuration type")
 	}
 	return err
+}
+
+func (c *Configuration) GetIntegrationConfig(name string) (*IntegrationConfig, error) {
+	var cfg IntegrationConfig
+
+	homedir, err := os.UserHomeDir()
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to load home directory %v", err)
+	}
+
+	viper.SetConfigName(name)
+	viper.AddConfigPath(homedir + "/config")
+	err = viper.ReadInConfig()
+
+	if err != nil {
+		return nil, err
+	}
+
+	sub := viper.Sub("integrations")
+	if sub == nil {
+		return nil, fmt.Errorf("no config for integration: %s", name)
+	}
+	sub.Unmarshal(&cfg)
+	return &cfg, nil
 }

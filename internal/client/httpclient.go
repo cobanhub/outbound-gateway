@@ -8,8 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	config "github.com/cobanhub/madakaripura/internal/integration_config"
-
+	"github.com/cobanhub/madakaripura/internal/handler/request"
 	"github.com/sony/gobreaker"
 )
 
@@ -28,7 +27,7 @@ func init() {
 	}
 	cb = gobreaker.NewCircuitBreaker(settings)
 }
-func Send(payload map[string]interface{}, headers map[string]string, integration *config.IntegrationConfig) (GatewayResponse, error) {
+func Send(payload map[string]interface{}, headers map[string]string, integration *request.IntegrationConfigRequest) (GatewayResponse, error) {
 	bodyBytes, err := json.Marshal(payload)
 
 	if err != nil {
